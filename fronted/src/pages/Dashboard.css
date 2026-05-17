@@ -1,150 +1,191 @@
+/* =========================================================================
+   DASHBOARD REFINADO - PROPORCIONES PULIDAS (Amigos Salvajes)
+   ========================================================================= */
+
 .dashboard-container {
-    background-color: #f4f7f6;
+    background-color: #f0f3f5; /* Un tono base ligeramente más suave */
     min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Tipografías más modernas */
+    color: #212529;
 }
 
-/* Navbar */
+/* Navbar: Proporción Refinada */
 .dashboard-nav {
-    background-color: #547786;
+    background-color: #547786; /* Tu azul característico */
     color: white;
-    padding: 15px 30px;
+    padding: 10px 40px; /* Reducido verticalmente */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: sticky; /* Se queda arriba al hacer scroll */
+    top: 0;
+    z-index: 1000;
 }
 
 .nav-logo {
-    font-size: 1.4rem;
+    font-size: 1.25rem; /* Más pequeño y elegante */
     font-weight: 800;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px; /* Efecto espaciado característico de tus maquetas */
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
+.logo-icon {
+    font-size: 1.4rem;
+}
+
 .btn-logout {
-    background-color: #3b535e;
+    background-color: #3b535e; /* Contraste oscuro */
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
+    padding: 6px 16px; /* Más compacto */
+    border-radius: 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-logout:hover {
     background-color: #d90429;
+    transform: translateY(-1px);
 }
 
-/* Contenido */
+/* Contenido Principal: Mejor Layout */
 .dashboard-content {
-    max-width: 1200px;
+    max-width: 1140px; /* Ancho pro estándar */
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 30px 20px; /* Más respiración vertical */
+}
+
+/* Bienvenida Refinada */
+.welcome-banner {
+    margin-bottom: 30px;
+    text-align: left;
 }
 
 .welcome-banner h1 {
-    color: #212529;
-    font-size: 2.2rem;
-    margin-bottom: 10px;
+    color: #2e414a;
+    font-size: 1.75rem; /* Menos gigante, más sofisticado */
+    font-weight: 800;
+    margin-bottom: 5px;
 }
 
 .welcome-banner p {
-    color: #666;
-    font-size: 1.1rem;
+    color: #5c7079;
+    font-size: 0.95rem;
+    margin-top: 0;
 }
 
-/* Buscador */
+/* Buscador: Compacto y Moderno */
 .search-box {
-    margin: 30px 0;
+    margin: 0 0 40px 0;
 }
 
 .search-box input {
     width: 100%;
-    padding: 15px 25px;
+    max-width: 600px; /* Limitamos el ancho máximo para no estirarlo todo */
+    display: block;
+    margin: 0 auto; /* Centrado */
+    padding: 12px 20px; /* Más compacto */
     border: 2px solid #ced4da;
-    border-radius: 30px;
-    font-size: 1rem;
+    border-radius: 25px; /* Bordes suaves como en la maqueta original */
+    font-size: 0.95rem;
     outline: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     border-color: #547786;
-    box-shadow: 0 4px 12px rgba(84, 119, 134, 0.2);
+    box-shadow: 0 4px 10px rgba(84, 119, 134, 0.15);
 }
 
-/* Grid de Tarjetas */
+/* Grid de Tarjetas: Proporciones Óptimas */
 .mascotas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 30px;
-    margin-top: 20px;
+    /* GRID FLUIDO: Más tarjetas por fila, tamaño mínimo reducido */
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); 
+    gap: 20px; /* Espaciado más reducido */
+    margin-top: 10px;
 }
 
+/* Tarjeta (Card): Estética y Compacta */
 .mascota-card {
     background-color: white;
-    border-radius: 20px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    border-radius: 16px; /* Bordes suaves */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 25px;
+    padding: 20px; /* Padding reducido */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .mascota-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
+/* Avatar Compacto */
 .card-avatar {
-    font-size: 3.5rem;
-    background-color: #e9ecef;
-    width: 90px;
-    height: 90px;
+    font-size: 2.5rem; /* Mucho más pequeño */
+    background-color: #e6ebed;
+    width: 65px; /* Compactado */
+    height: 65px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
+/* Info de Tarjeta Refinada */
 .card-info {
     text-align: center;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .card-info h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     color: #212529;
-    font-size: 1.3rem;
+    font-size: 1.1rem; /* Proporción elegante */
+    font-weight: 700;
 }
 
 .card-info p {
-    margin: 5px 0;
-    font-size: 0.95rem;
-    color: #555;
+    margin: 3px 0;
+    font-size: 0.8rem; /* Texto secundario más pequeño */
+    color: #5c7079;
 }
 
+.card-info strong {
+    color: #3b535e;
+    font-weight: 600;
+}
+
+/* Botón Compacto de Tarjeta */
 .btn-adoptar {
     background-color: #547786;
     color: white;
     border: none;
-    width: 100%;
-    padding: 12px 0;
-    border-radius: 25px;
+    width: 90%; /* Menos ancho */
+    padding: 9px 0; /* Más compacto */
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     transition: background 0.3s ease;
 }
 
@@ -152,10 +193,29 @@
     background-color: #3b535e;
 }
 
+/* Mensajes de Estado: Centralizados */
 .no-results, .loading-text {
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #666;
     grid-column: 1 / -1;
-    margin-top: 40px;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+}
+
+/* Ajustes Responsivos Refinados */
+@media (max-width: 768px) {
+    .dashboard-nav { padding: 10px 20px; }
+    .nav-logo { font-size: 1.1rem; }
+    .btn-logout { font-size: 0.8rem; padding: 5px 12px; }
+    .welcome-banner h1 { font-size: 1.5rem; }
+    .mascotas-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+}
+
+@media (max-width: 480px) {
+    .dashboard-content { padding: 20px 15px; }
+    .welcome-banner h1 { font-size: 1.3rem; }
+    .welcome-banner p { font-size: 0.85rem; }
 }
