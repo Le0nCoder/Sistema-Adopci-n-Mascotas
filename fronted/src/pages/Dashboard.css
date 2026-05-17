@@ -193,11 +193,15 @@
     background-color: #3b535e;
 }
 
-/* Estilos para la barra del Administrador */
+/* =========================================================================
+   ESTILOS DE ADMINISTRADOR (Inyectar al final del archivo)
+   ========================================================================= */
+
+/* Barra superior de acciones */
 .admin-actions-bar {
     background-color: #e2e8f0;
     border-left: 5px solid #3b535e;
-    padding: 15px 20px;
+    padding: 12px 20px;
     border-radius: 8px;
     margin-bottom: 25px;
     display: flex;
@@ -207,17 +211,18 @@
 
 .admin-actions-bar h3 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #3b535e;
+    font-weight: 700;
 }
 
 .btn-admin-add {
     background-color: #3b535e;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
+    padding: 8px 14px;
+    border-radius: 15px;
+    font-size: 0.8rem;
     font-weight: bold;
     cursor: pointer;
     transition: background 0.2s;
@@ -227,25 +232,40 @@
     background-color: #547786;
 }
 
-/* Botones de Admin dentro de las tarjetas */
+/* Contenedor de botones Editar/Eliminar dentro de la tarjeta */
 .admin-card-buttons {
     display: flex;
-    gap: 10px;
-    width: 90%;
+    gap: 8px;
+    width: 100%;
+    margin-top: 5px;
 }
 
 .btn-card-edit, .btn-card-delete {
     flex: 1;
     border: none;
-    padding: 6px 0;
+    padding: 8px 0;
     border-radius: 15px;
     font-size: 0.75rem;
     font-weight: bold;
     cursor: pointer;
+    display: inline-block; /* Asegura su visibilidad */
+    transition: transform 0.1s, opacity 0.2s;
 }
 
-.btn-card-edit { background-color: #ffca28; color: #333; }
-.btn-card-delete { background-color: #ef5350; color: white; }
+.btn-card-edit {
+    background-color: #ffca28;
+    color: #212529;
+}
+
+.btn-card-delete {
+    background-color: #ef5350;
+    color: white;
+}
+
+.btn-card-edit:hover, .btn-card-delete:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
 
 /* Mensajes de Estado: Centralizados */
 .no-results, .loading-text {

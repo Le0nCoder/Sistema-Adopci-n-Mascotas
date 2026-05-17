@@ -8,7 +8,7 @@ const Dashboard = () => {
     const [mascotas, setMascotas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
-    const [rolUsuario, setRolUsuario] = useState(''); // 👈 Estado para identificar el rol del usuario
+    const [rolUsuario, setRolUsuario] = useState(''); // Estado para identificar el rol del usuario
 
     // Lista simulada de mascotas en lo que conectamos el endpoint final del backend
     const mascotasMock = [
@@ -21,7 +21,7 @@ const Dashboard = () => {
     useEffect(() => {
         // Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
-        const rol = localStorage.getItem('rol'); // 👈 Leer el rol guardado en el Login
+        const rol = localStorage.getItem('rol'); // Leer el rol guardado en el Login
 
         if (!token) {
             alert('Acceso denegado. Por favor, inicia sesión.');
@@ -29,7 +29,12 @@ const Dashboard = () => {
             return;
         }
 
-        setRolUsuario(rol); // 👈 Guardamos el rol en el estado local
+        // Convertimos a minúsculas para asegurar que la condición 'admin' siempre haga match perfecto
+        if (rol) {
+            setRolUsuario(rol.toLowerCase().trim());
+        } else {
+            setRolUsuario('usuario');
+        }
         
         // Aquí haríamos la petición real al backend usando el middleware de protección:
         // API.get('/mascotas', { headers: { Authorization: `Bearer ${token}` } })
@@ -40,7 +45,7 @@ const Dashboard = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token'); // Limpia el JWT de seguridad
-        localStorage.removeItem('rol');   // 👈 Limpia también el rol al salir para seguridad
+        localStorage.removeItem('rol');   // Limpia también el rol al salir por seguridad
         navigate('/login');
     };
 
@@ -67,7 +72,7 @@ const Dashboard = () => {
             <main className="dashboard-content">
                 <section className="welcome-banner">
                     <h1>¡Bienvenido a tu Panel de Adopciones! 🏡</h1>
-                    {/* 👤 Indicador visual dinámico del tipo de cuenta activa */}
+                    {/* Indicador visual dinámico del tipo de cuenta activa */}
                     <p>Sesión activa con permisos de: <strong>{rolUsuario === 'admin' ? 'Administrador 🛠️' : 'Adoptante ✨'}</strong></p>
                 </section>
 
@@ -107,7 +112,7 @@ const Dashboard = () => {
                                         <p><strong>Edad:</strong> {mascota.edad}</p>
                                     </div>
                                     
-                                    {/* 🔀 BOTONES CONDICIONALES POR ROL */}
+                                    {/* BOTONES MUTABLES SEGÚN EL ROL DETECTADO */}
                                     {rolUsuario === 'admin' ? (
                                         <div className="admin-card-buttons">
                                             <button className="btn-card-edit" onClick={() => alert(`Editando a ${mascota.nombre}`)}>✏️ Editar</button>

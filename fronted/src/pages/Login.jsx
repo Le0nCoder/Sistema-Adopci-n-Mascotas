@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import API from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Crearemos este archivo para los detalles visuales
+import './Login.css'; // Archivo que contiene la maquetación visual y proporciones
 
 const Login = () => {
     const [nombreUsuario, setNombreUsuario] = useState('');
@@ -11,27 +11,38 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(''); // Limpiamos errores previos al intentar ingresar
+        
         try {
-            // Ajustado a 'Nombre_Usuario' como está en tu diagrama del proyecto
+            // Envia los campos 'Nombre_Usuario' y 'Contrasena' tal como los espera tu API en Node
             const respuesta = await API.post('/auth/login', {
                 Nombre_Usuario: nombreUsuario,
                 Contrasena: contrasena
             });
             
-            // 🔐 GUARDAR CREDENCIALES Y ACCESOS EN EL NAVEGADOR
-            localStorage.setItem('token', respuesta.data.token);
-            localStorage.setItem('rol', respuesta.data.usuario.rol); // 👈 ¡ESTA ES LA LÍNEA NUEVA!
-            
-            alert('¡Bienvenido a Amigos Salvajes!');
-            navigate('/dashboard'); // O la ruta principal de tu catálogo
+            // Verificamos que el backend responda exitosamente
+            if (respuesta.data.success) {
+                // 1. Guardamos el token JWT para peticiones seguras intermedias
+                localStorage.setItem('token', respuesta.data.token);
+                
+                // 2. Guardamos el rol extrayéndolo directamente del objeto anidado 'usuario'
+                localStorage.setItem('rol', respuesta.data.usuario.rol);
+                
+                alert(`¡Bienvenido a Amigos Salvajes, ${respuesta.data.usuario.nombres || nombreUsuario}!`);
+                
+                // Redirección inmediata al catálogo dinámico
+                navigate('/dashboard'); 
+            }
         } catch (err) {
-            setError(err.response?.data?.msg || 'Usuario o contraseña incorrectos');
+            // Manejo de errores preciso basado en las respuestas de tu authController
+            console.error("Error en el login: ", err);
+            setError(err.response?.data?.msg || 'Usuario o contraseña incorrectos. Inténtalo de nuevo.');
         }
     };
 
     return (
         <div className="login-container">
-            {/* Encabezado idéntico a tu mockup */}
+            {/* Encabezado idéntico a tu mockup visual */}
             <div className="marca-header">
                 <h1 className="titulo-amigos">A M I G O S</h1>
                 <h2 className="subtitulo-salvajes">S A L V A J E S<span className="com">.COM</span></h2>
@@ -39,6 +50,7 @@ const Login = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="form-login">
+                {/* Alerta visual en caso de credenciales inválidas */}
                 {error && <p className="error-mensaje">{error}</p>}
 
                 {/* Campo: Nombre de Usuario */}
@@ -52,6 +64,7 @@ const Login = () => {
                         onChange={(e) => setNombreUsuario(e.target.value)}
                         required
                         placeholder="Ej. paul_leon"
+                        autoComplete="username"
                     />
                 </div>
 
@@ -66,6 +79,7 @@ const Login = () => {
                         onChange={(e) => setContrasena(e.target.value)}
                         required
                         placeholder="••••••••"
+                        autoComplete="current-password"
                     />
                 </div>
 
