@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Registro Completo de Usuario (Amigos Salvajes)
 exports.registrarUsuario = async (req, res) => {
@@ -98,14 +99,12 @@ exports.registrarUsuario = async (req, res) => {
 };
 
 // Iniciar Sesión de Usuario (Amigos Salvajes) - Sincronizado con Login.jsx
+// Iniciar Sesión de Usuario (Amigos Salvajes) - Versión con JWT Real
 exports.loginUsuario = async (req, res) => {
-    // 🔍 Monitoreamos en la terminal que el payload llegue idéntico al de React
     console.log("Intento de Login recibido desde el Frontend:", req.body);
 
-    // 🔄 Desestructuramos usando las mayúsculas exactas que manda tu componente
     const { Nombre_Usuario, Contrasena } = req.body;
 
-    // Validar que vengan los campos obligatorios
     if (!Nombre_Usuario || !Contrasena) {
         return res.status(400).json({ 
             msg: 'Por favor, ingresa tu usuario (o correo) y contraseña.' 
@@ -113,13 +112,12 @@ exports.loginUsuario = async (req, res) => {
     }
 
     try {
-        // 1. Buscar al usuario por Nombre_Usuario O por Correo_Electronico
+        // 1. Buscar al usuario en la BD
         const [usuarios] = await db.query(
             'SELECT * FROM usuarios WHERE Nombre_Usuario = ? OR Correo_Electronico = ?',
             [Nombre_Usuario, Nombre_Usuario]
         );
 
-        // Si no se encuentra ningún registro
         if (usuarios.length === 0) {
             return res.status(400).json({ 
                 msg: 'El nombre de usuario o correo electrónico no existe.' 
@@ -128,7 +126,7 @@ exports.loginUsuario = async (req, res) => {
 
         const usuario = usuarios[0];
 
-        // 2. Comparar la contraseña ingresada con el Hash encriptado de la BD
+        // 2. Verificar contraseña
         const contrasenaCorrecta = await bcrypt.compare(Contrasena, usuario.Contrasena);
 
         if (!contrasenaCorrecta) {
@@ -137,10 +135,24 @@ exports.loginUsuario = async (req, res) => {
             });
         }
 
-        // 3. Responder con éxito y retornar un token ficticio por ahora (ya que React busca respuesta.data.token)
+        // =========================================================================
+        // 🔐 ¡AQUÍ GENERAMOS EL JWT REAL!
+        // =========================================================================
+        // El "payload" es la información pública que guardaremos dentro del token
+        const payload = {
+            id: usuario.id,
+            rol: usuario.Rol
+        };
+
+        // Firmamos el token usando nuestra clave secreta del .env y le damos 2 horas de vida
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '2h'
+        });
+
+        // 3. Responder enviando el Token Real al Frontend
         res.status(200).json({
             success: true,
-            token: 'token_simulado_amigos_salvajes_jwt', // Temporal para que no truene tu localStorage
+            token: token, // 👈 Este ya es un token JWT real, largo y encriptado
             msg: `¡Bienvenido de vuelta, ${usuario.Nombres}!`,
             usuario: {
                 id: usuario.id,
