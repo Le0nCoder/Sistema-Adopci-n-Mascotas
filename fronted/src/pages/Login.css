@@ -1,0 +1,120 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Tipografía de la marca */
+.marca-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.titulo-amigos {
+    font-size: 3.5rem;
+    font-family: 'Georgia', serif;
+    letter-spacing: 8px;
+    margin: 0;
+    color: #e3eef2;
+}
+
+.subtitulo-salvajes {
+    font-size: 2rem;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Para darle el toque estilizado de tu logo */
+    letter-spacing: 4px;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.subtitulo-salvajes .com {
+    font-size: 1.2rem;
+    vertical-align: super;
+}
+
+.seccion-actual {
+    font-size: 1.6rem;
+    margin-top: 20px;
+    font-weight: 400;
+    color: #ffffff;
+}
+
+/* Formulario e inputs oscuros redondeados */
+.form-login {
+    width: 100%;
+    max-width: 450px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    font-size: 1.1rem;
+    color: #1a1a1a; /* Letras oscuras arriba del input como en tu dibujo */
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.icono-label {
+    margin-right: 5px;
+}
+
+.input-group input {
+    background-color: var(--input-bg);
+    border: none;
+    border-radius: 25px; /* Bordes bien redondeados */
+    padding: 15px 20px;
+    color: #ffffff;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.error-mensaje {
+    background-color: #8b2525;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Botones inferiores de Patitas */
+.botones-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+}
+
+.btn-paw {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-paw:hover {
+    transform: scale(1.1);
+}
+
+.paw-icon {
+    font-size: 3rem; /* Simula la patita de fondo */
+    color: var(--patita-color);
+    line-height: 1;
+}
+
+.btn-text {
+    font-size: 0.9rem;
+    color: #1a1a1a;
+    font-weight: bold;
+    margin-top: -5px;
+    text-decoration: underline;
+}
