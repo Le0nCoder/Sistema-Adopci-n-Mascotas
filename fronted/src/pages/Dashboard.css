@@ -193,6 +193,60 @@
     background-color: #3b535e;
 }
 
+/* Estilos para la barra del Administrador */
+.admin-actions-bar {
+    background-color: #e2e8f0;
+    border-left: 5px solid #3b535e;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-actions-bar h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #3b535e;
+}
+
+.btn-admin-add {
+    background-color: #3b535e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-admin-add:hover {
+    background-color: #547786;
+}
+
+/* Botones de Admin dentro de las tarjetas */
+.admin-card-buttons {
+    display: flex;
+    gap: 10px;
+    width: 90%;
+}
+
+.btn-card-edit, .btn-card-delete {
+    flex: 1;
+    border: none;
+    padding: 6px 0;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-card-edit { background-color: #ffca28; color: #333; }
+.btn-card-delete { background-color: #ef5350; color: white; }
+
 /* Mensajes de Estado: Centralizados */
 .no-results, .loading-text {
     text-align: center;
