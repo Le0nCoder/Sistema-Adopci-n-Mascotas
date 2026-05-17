@@ -8,6 +8,7 @@ const Dashboard = () => {
     const [mascotas, setMascotas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
+    const [rolUsuario, setRolUsuario] = useState(''); // 👈 Estado para identificar el rol del usuario
 
     // Lista simulada de mascotas en lo que conectamos el endpoint final del backend
     const mascotasMock = [
@@ -20,12 +21,16 @@ const Dashboard = () => {
     useEffect(() => {
         // Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
+        const rol = localStorage.getItem('rol'); // 👈 Leer el rol guardado en el Login
+
         if (!token) {
             alert('Acceso denegado. Por favor, inicia sesión.');
             navigate('/login');
             return;
         }
 
+        setRolUsuario(rol); // 👈 Guardamos el rol en el estado local
+        
         // Aquí haríamos la petición real al backend usando el middleware de protección:
         // API.get('/mascotas', { headers: { Authorization: `Bearer ${token}` } })
         
@@ -35,6 +40,7 @@ const Dashboard = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token'); // Limpia el JWT de seguridad
+        localStorage.removeItem('rol');   // 👈 Limpia también el rol al salir para seguridad
         navigate('/login');
     };
 
@@ -61,8 +67,19 @@ const Dashboard = () => {
             <main className="dashboard-content">
                 <section className="welcome-banner">
                     <h1>¡Bienvenido a tu Panel de Adopciones! 🏡</h1>
-                    <p>Encuentra a tu compañero ideal entre nuestros amigos rescatados.</p>
+                    {/* 👤 Indicador visual dinámico del tipo de cuenta activa */}
+                    <p>Sesión activa con permisos de: <strong>{rolUsuario === 'admin' ? 'Administrador 🛠️' : 'Adoptante ✨'}</strong></p>
                 </section>
+
+                {/* 🛠️ ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Aparece solo si rol es 'admin') */}
+                {rolUsuario === 'admin' && (
+                    <div className="admin-actions-bar">
+                        <h3>Gestión de Catálogo</h3>
+                        <button className="btn-admin-add" onClick={() => alert('Abriendo modal para registrar nueva mascota...')}>
+                            ➕ Agregar Nueva Mascota
+                        </button>
+                    </div>
+                )}
 
                 {/* Barra de Búsqueda */}
                 <div className="search-box">
@@ -89,7 +106,16 @@ const Dashboard = () => {
                                         <p><strong>Raza:</strong> {mascota.raza}</p>
                                         <p><strong>Edad:</strong> {mascota.edad}</p>
                                     </div>
-                                    <button className="btn-adoptar">Conóceme 🐾</button>
+                                    
+                                    {/* 🔀 BOTONES CONDICIONALES POR ROL */}
+                                    {rolUsuario === 'admin' ? (
+                                        <div className="admin-card-buttons">
+                                            <button className="btn-card-edit" onClick={() => alert(`Editando a ${mascota.nombre}`)}>✏️ Editar</button>
+                                            <button className="btn-card-delete" onClick={() => alert(`Eliminando a ${mascota.nombre}`)}>❌ Eliminar</button>
+                                        </div>
+                                    ) : (
+                                        <button className="btn-adoptar">Conóceme 🐾</button>
+                                    )}
                                 </div>
                             ))
                         ) : (

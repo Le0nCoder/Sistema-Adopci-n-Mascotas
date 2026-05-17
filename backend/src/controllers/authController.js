@@ -139,26 +139,19 @@ exports.loginUsuario = async (req, res) => {
         // 🔐 ¡AQUÍ GENERAMOS EL JWT REAL!
         // =========================================================================
         // El "payload" es la información pública que guardaremos dentro del token
-        const payload = {
-            id: usuario.id,
-            rol: usuario.Rol
-        };
+        // ... (código previo de validación de contraseña en authController.js)
 
-        // Firmamos el token usando nuestra clave secreta del .env y le damos 2 horas de vida
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '2h'
-        });
+        const payload = { id: usuario.id, rol: usuario.Rol };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
 
-        // 3. Responder enviando el Token Real al Frontend
         res.status(200).json({
             success: true,
-            token: token, // 👈 Este ya es un token JWT real, largo y encriptado
+            token: token,
             msg: `¡Bienvenido de vuelta, ${usuario.Nombres}!`,
-            usuario: {
-                id: usuario.id,
-                nombres: usuario.Nombres,
-                nombreUsuario: usuario.Nombre_Usuario,
-                rol: usuario.Rol
+            usuario: { 
+                id: usuario.id, 
+                nombres: usuario.Nombres, 
+                rol: usuario.Rol // 👈 Aseguramos que viaje el Rol (ej: 'admin' o 'usuario')
             }
         });
 

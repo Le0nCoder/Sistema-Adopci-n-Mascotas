@@ -18,7 +18,10 @@ const Login = () => {
                 Contrasena: contrasena
             });
             
+            // 🔐 GUARDAR CREDENCIALES Y ACCESOS EN EL NAVEGADOR
             localStorage.setItem('token', respuesta.data.token);
+            localStorage.setItem('rol', respuesta.data.usuario.rol); // 👈 ¡ESTA ES LA LÍNEA NUEVA!
+            
             alert('¡Bienvenido a Amigos Salvajes!');
             navigate('/dashboard'); // O la ruta principal de tu catálogo
         } catch (err) {
