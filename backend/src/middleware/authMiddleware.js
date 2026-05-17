@@ -15,11 +15,12 @@ module.exports = function (req, res, next) {
         const token = tokenHeader.split(' ')[1] || tokenHeader;
 
         // 3. Verificar que el token sea auténtico usando tu firma secreta (.env)
-        const cifrado = jwt.verify(token, process.env.JWT_SECRET || 'FirmaSecretaAmigosSalvajes');
+        // 💡 Ajustado para que use PRINCIPALMENTE tu variable de entorno ultra segura
+        const cifrado = jwt.verify(token, process.env.JWT_SECRET);
         
         // 4. Inyectar los datos del usuario dentro del objeto de la petición (req)
-        // Así, cualquier ruta que use este middleware sabrá qué usuario está operando
-        req.usuario = cifrado.usuario; 
+        // 🔄 CORRECCIÓN: Como pusimos id y rol en la raíz del payload, asignamos todo el objeto 'cifrado'
+        req.usuario = cifrado; 
         
         // 5. Todo chido, pasamos a la siguiente función o controlador
         next();
