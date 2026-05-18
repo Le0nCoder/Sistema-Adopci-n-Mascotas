@@ -11,14 +11,12 @@ const authRoutes = require('./routers/authRoutes');
 const mascotaRoutes = require('./routers/mascotaRoutes');
 const adopcionRoutes = require('./routers/adopcionRoutes'); 
 
-// 2. Montaje de los endpoints en Express
+// 2. Montaje de endpoints
 app.use('/api/auth', authRoutes);
 app.use('/api/mascotas', mascotaRoutes);
 app.use('/api/adopciones', adopcionRoutes);
 
-// ==========================================
-// ⚠️ ¡ESTA ES LA PIEZA QUE FALTA PARA EL PUERTO 5000!
-// ==========================================
+// 3. Levantar el servidor en el puerto 5000
 const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor backend corriendo con éxito en http://localhost:${PORT}`);

@@ -151,14 +151,12 @@ const Dashboard = () => {
         }
     };
 
-    // 🐾 Abrir modal de solicitud de adopción
     const handleAbrirAdoptar = (mascota) => {
         setMascotaAAdoptar(mascota);
         setMotivosAdopcion('');
         setModalAdoptarAbierto(true);
     };
 
-    // 📬 Enviar el formulario de adopción al Backend
     const handleEnviarSolicitudAdopcion = async (e) => {
         e.preventDefault();
         try {
