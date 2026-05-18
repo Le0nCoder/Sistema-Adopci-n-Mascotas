@@ -35,12 +35,16 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` } 
                 });
 
+                // Imprime en consola para verificar qué estructura llega exactamente
+                console.log("Respuesta del servidor:", respuesta.data);
+
                 if (respuesta.data.success) {
-                    // Seteamos las mascotas reales que vienen de la base de datos (tabla: mascotas)
+                    // Seteamos las mascotas reales que vienen de la base de datos
                     setMascotas(respuesta.data.mascotas); 
                 }
             } catch (error) {
-                console.error("Error al traer las mascotas:", error);
+                // Diagnóstico en consola para ver detalles del error (CORS, 401, 404, etc.)
+                console.error("Error detallado al traer las mascotas:", error.response || error);
                 alert("No se pudo cargar el catálogo de mascotas. Intenta de nuevo.");
             } finally {
                 setCargando(false);
@@ -54,6 +58,32 @@ const Dashboard = () => {
         localStorage.removeItem('token'); // Limpia el JWT de seguridad
         localStorage.removeItem('rol');   // Limpia también el rol al salir por seguridad
         navigate('/login');
+    };
+
+    // ❌ Función para eliminar una mascota de la Base de Datos
+    const handleEliminarMascota = async (id, nombre) => {
+        const confirmar = window.confirm(`¿Estás seguro de que deseas eliminar a ${nombre}? Esta acción no se puede deshacer.`);
+        
+        if (!confirmar) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            
+            // Petición DELETE enviando el ID en los parámetros de la URL
+            const respuesta = await API.delete(`/mascotas/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (respuesta.data.success) {
+                alert(`${nombre} ha sido eliminado correctamente.`);
+                
+                // Actualizamos el estado local filtrando la mascota borrada para que desaparezca sin recargar la página
+                setMascotas(prevMascotas => prevMascotas.filter(mascota => mascota.id !== id));
+            }
+        } catch (error) {
+            console.error("Error al eliminar la mascota:", error.response || error);
+            alert("No se pudo eliminar la mascota. Verifica el estado del backend o los permisos.");
+        }
     };
 
     // Filtrar mascotas según lo que escriba el usuario (Adaptado a 'descripcion' de tu BD)
@@ -136,7 +166,14 @@ const Dashboard = () => {
                                     {rolUsuario === 'admin' ? (
                                         <div className="admin-card-buttons">
                                             <button className="btn-card-edit" onClick={() => alert(`Editando a ${mascota.nombre}`)}>✏️ Editar</button>
-                                            <button className="btn-card-delete" onClick={() => alert(`Eliminando a ${mascota.nombre}`)}>❌ Eliminar</button>
+                                            
+                                            {/* Acción real asignada al botón Eliminar */}
+                                            <button 
+                                                className="btn-card-delete" 
+                                                onClick={() => handleEliminarMascota(mascota.id, mascota.nombre)}
+                                            >
+                                                ❌ Eliminar
+                                            </button>
                                         </div>
                                     ) : (
                                         <button className="btn-adoptar">Conóceme 🐾</button>
