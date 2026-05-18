@@ -8,15 +8,24 @@ const Dashboard = () => {
     const [mascotas, setMascotas] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
-    const [rolUsuario, setRolUsuario] = useState(''); // Estado para identificar el rol del usuario
+    const [rolUsuario, setRolUsuario] = useState('');
 
     // 🪟 Estados para la Ventana Modal de Edición
     const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
     const [mascotaAEditar, setMascotaAEditar] = useState(null);
     const [datosEditar, setDatosEditar] = useState({ nombre: '', especie: '', edad: '', descripcion: '' });
 
+    // ➕ Estados para la Ventana Modal de Registro
+    const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
+    const [datosNuevaMascota, setDatosNuevaMascota] = useState({
+        nombre: '',
+        especie: 'perro',
+        edad: '',
+        descripcion: '',
+        foto_url: ''
+    });
+
     useEffect(() => {
-        // 1. Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
         const rol = localStorage.getItem('rol');
 
@@ -30,26 +39,20 @@ const Dashboard = () => {
             setRolUsuario(rol.toLowerCase().trim());
         }
 
-        // 2. Petición REAL al Backend para traer las mascotas de la Base de Datos
         const cargarMascotas = async () => {
             try {
                 setCargando(true);
-                
-                // Enviamos el token en los headers como lo pide tu middleware
                 const respuesta = await API.get('/mascotas', { 
                     headers: { Authorization: `Bearer ${token}` } 
                 });
 
-                // Imprime en consola para verificar qué estructura llega exactamente
                 console.log("Respuesta del servidor:", respuesta.data);
 
                 if (respuesta.data.success) {
-                    // Seteamos las mascotas reales que vienen de la base de datos
                     setMascotas(respuesta.data.mascotas); 
                 }
             } catch (error) {
-                // Diagnóstico en consola para ver detalles del error (CORS, 401, 404, etc.)
-                console.error("Error detallado al traer las mascotas:", error.response || error);
+                console.error("Error al traer las mascotas:", error.response || error);
                 alert("No se pudo cargar el catálogo de mascotas. Intenta de nuevo.");
             } finally {
                 setCargando(false);
@@ -60,38 +63,31 @@ const Dashboard = () => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token'); // Limpia el JWT de seguridad
-        localStorage.removeItem('rol');   // Limpia también el rol al salir por seguridad
+        localStorage.removeItem('token');
+        localStorage.removeItem('rol');
         navigate('/login');
     };
 
-    // ❌ Función para eliminar una mascota de la Base de Datos
     const handleEliminarMascota = async (id, nombre) => {
-        const confirmar = window.confirm(`¿Estás seguro de que deseas eliminar a ${nombre}? Esta acción no se puede deshacer.`);
-        
+        const confirmar = window.confirm(`¿Estás seguro de que deseas eliminar a ${nombre}?`);
         if (!confirmar) return;
 
         try {
             const token = localStorage.getItem('token');
-            
-            // Petición DELETE enviando el ID en los parámetros de la URL
             const respuesta = await API.delete(`/mascotas/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             if (respuesta.data.success) {
-                alert(`${nombre} ha sido eliminado correctamente.`);
-                
-                // Actualizamos el estado local filtrando la mascota borrada para que desaparezca sin recargar la página
-                setMascotas(prevMascotas => prevMascotas.filter(mascota => mascota.id !== id));
+                alert(`${nombre} eliminado correctamente.`);
+                setMascotas(prev => prev.filter(m => m.id !== id));
             }
         } catch (error) {
-            console.error("Error al eliminar la mascota:", error.response || error);
-            alert("No se pudo eliminar la mascota. Verifica el estado del backend o los permisos.");
+            console.error("Error al eliminar:", error);
+            alert("No se pudo eliminar la mascota.");
         }
     };
 
-    // ✏️ Cargar datos actuales de la mascota elegida y abrir el modal
     const handleAbrirEditar = (mascota) => {
         setMascotaAEditar(mascota);
         setDatosEditar({
@@ -103,7 +99,6 @@ const Dashboard = () => {
         setModalEditarAbierto(true);
     };
 
-    // 💾 Enviar los datos modificados al endpoint PUT del Backend
     const handleGuardarEdicion = async (e) => {
         e.preventDefault();
         try {
@@ -114,32 +109,54 @@ const Dashboard = () => {
 
             if (respuesta.data.success) {
                 alert("Mascota actualizada con éxito.");
-                
-                // Mapeamos el estado local para reflejar los cambios en pantalla inmediatamente
-                setMascotas(prevMascotas => 
-                    prevMascotas.map(m => m.id === mascotaAEditar.id ? { ...m, ...datosEditar } : m)
+                setMascotas(prev => 
+                    prev.map(m => m.id === mascotaAEditar.id ? { ...m, ...datosEditar } : m)
                 );
                 setModalEditarAbierto(false);
             }
         } catch (error) {
-            console.error("Error al actualizar la mascota:", error.response || error);
-            alert("No se pudo actualizar la mascota. Intenta de nuevo.");
+            console.error("Error al actualizar:", error);
+            alert("No se pudo actualizar la mascota.");
         }
     };
 
-    // Filtrar mascotas según lo que escriba el usuario (Adaptado a 'descripcion' de tu BD)
+    const handleGuardarNuevaMascota = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            const respuesta = await API.post('/mascotas', datosNuevaMascota, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (respuesta.data.success) {
+                alert("¡Nueva mascota registrada con éxito! 🐾");
+                
+                const nuevaMascotaConId = {
+                    id: respuesta.data.mascotaId,
+                    ...datosNuevaMascota,
+                    estado: 'disponible'
+                };
+
+                setMascotas(prev => [nuevaMascotaConId, ...prev]);
+                setDatosNuevaMascota({ nombre: '', especie: 'perro', edad: '', descripcion: '', foto_url: '' });
+                setModalAgregarAbierto(false);
+            }
+        } catch (error) {
+            console.error("Error al registrar mascota:", error);
+            alert("No se pudo registrar la mascota.");
+        }
+    };
+
     const mascotasFiltradas = mascotas.filter(mascota => {
         const nombre = mascota.nombre ? mascota.nombre.toLowerCase() : '';
         const especie = mascota.especie ? mascota.especie.toLowerCase() : '';
         const descripcion = mascota.descripcion ? mascota.descripcion.toLowerCase() : '';
         const termino = busqueda.toLowerCase();
-
         return nombre.includes(termino) || especie.includes(termino) || descripcion.includes(termino);
     });
 
     return (
         <div className="dashboard-container">
-            {/* Barra de Navegación Superior */}
             <header className="dashboard-nav">
                 <div className="nav-logo">
                     <span className="logo-icon">🐾</span> AMIGOS SALVAJES
@@ -149,25 +166,21 @@ const Dashboard = () => {
                 </button>
             </header>
 
-            {/* Contenido Principal */}
             <main className="dashboard-content">
                 <section className="welcome-banner">
                     <h1>¡Bienvenido a tu Panel de Adopciones! 🏡</h1>
-                    {/* Indicador visual dinámico del tipo de cuenta activa */}
                     <p>Sesión activa con permisos de: <strong>{rolUsuario === 'admin' ? 'Administrador 🛠️' : 'Adoptante ✨'}</strong></p>
                 </section>
 
-                {/* 🛠️ ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Aparece solo si rol es 'admin') */}
                 {rolUsuario === 'admin' && (
                     <div className="admin-actions-bar">
                         <h3>Gestión de Catálogo</h3>
-                        <button className="btn-admin-add" onClick={() => alert('Abriendo modal para registrar nueva mascota...')}>
+                        <button className="btn-admin-add" onClick={() => setModalAgregarAbierto(true)}>
                             ➕ Agregar Nueva Mascota
                         </button>
                     </div>
                 )}
 
-                {/* Barra de Búsqueda */}
                 <div className="search-box">
                     <input 
                         type="text" 
@@ -177,7 +190,6 @@ const Dashboard = () => {
                     />
                 </div>
 
-                {/* Grid de Tarjetas de Mascotas */}
                 {cargando ? (
                     <p className="loading-text">Cargando peluditos...</p>
                 ) : (
@@ -185,7 +197,6 @@ const Dashboard = () => {
                         {mascotasFiltradas.length > 0 ? (
                             mascotasFiltradas.map(mascota => (
                                 <div key={mascota.id} className="mascota-card">
-                                    {/* 📸 Usamos 'foto_url' de tu BD o un emoji por defecto si está vacío */}
                                     <div className="card-avatar">
                                         {mascota.foto_url ? (
                                             <img src={mascota.foto_url} alt={mascota.nombre} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
@@ -197,30 +208,15 @@ const Dashboard = () => {
                                     <div className="card-info">
                                         <h3>{mascota.nombre}</h3>
                                         <p><strong>Especie:</strong> {mascota.especie}</p>
-                                        {/* 📝 Mapeado a 'descripcion' para coincidir con tu BD */}
                                         <p><strong>Descripción:</strong> {mascota.descripcion || 'Sin descripción'}</p>
                                         <p><strong>Edad:</strong> {mascota.edad}</p>
-                                        <p><strong>Estado:</strong> <span className="estado-badge">{mascota.estado || 'Disponible'}</span></p>
+                                        <p><strong>Estado:</strong> <span className="estado-badge">{mascota.estado || 'disponible'}</span></p>
                                     </div>
                                     
-                                    {/* Botones según el Rol */}
                                     {rolUsuario === 'admin' ? (
                                         <div className="admin-card-buttons">
-                                            {/* Acción real asignada al botón Editar */}
-                                            <button 
-                                                className="btn-card-edit" 
-                                                onClick={() => handleAbrirEditar(mascota)}
-                                            >
-                                                ✏️ Editar
-                                            </button>
-                                            
-                                            {/* Acción real asignada al botón Eliminar */}
-                                            <button 
-                                                className="btn-card-delete" 
-                                                onClick={() => handleEliminarMascota(mascota.id, mascota.nombre)}
-                                            >
-                                                ❌ Eliminar
-                                            </button>
+                                            <button className="btn-card-edit" onClick={() => handleAbrirEditar(mascota)}>✏️ Editar</button>
+                                            <button className="btn-card-delete" onClick={() => handleEliminarMascota(mascota.id, mascota.nombre)}>❌ Eliminar</button>
                                         </div>
                                     ) : (
                                         <button className="btn-adoptar">Conóceme 🐾</button>
@@ -228,53 +224,69 @@ const Dashboard = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className="no-results">No se encontraron mascotas que coincidan con tu búsqueda. 😿</p>
+                            <p className="no-results">No se encontraron mascotas. 😿</p>
                         )}
                     </div>
                 )}
             </main>
 
-            {/* 🪟 VENTANA MODAL FLOTANTE PARA EDITAR MASCOTA */}
+            {/* Modal Editar */}
             {modalEditarAbierto && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Editar Datos de {mascotaAEditar?.nombre}</h2>
                         <form onSubmit={handleGuardarEdicion}>
                             <label>Nombre:</label>
-                            <input 
-                                type="text" 
-                                required 
-                                value={datosEditar.nombre} 
-                                onChange={(e) => setDatosEditar({...datosEditar, nombre: e.target.value})} 
-                            />
+                            <input type="text" required value={datosEditar.nombre} onChange={(e) => setDatosEditar({...datosEditar, nombre: e.target.value})} />
 
                             <label>Especie:</label>
-                            <select 
-                                value={datosEditar.especie} 
-                                onChange={(e) => setDatosEditar({...datosEditar, especie: e.target.value})}
-                            >
+                            <select value={datosEditar.especie} onChange={(e) => setDatosEditar({...datosEditar, especie: e.target.value})}>
                                 <option value="perro">Perro</option>
                                 <option value="gato">Gato</option>
                             </select>
 
                             <label>Edad:</label>
-                            <input 
-                                type="text" 
-                                required 
-                                value={datosEditar.edad} 
-                                onChange={(e) => setDatosEditar({...datosEditar, edad: e.target.value})} 
-                            />
+                            <input type="text" required value={datosEditar.edad} onChange={(e) => setDatosEditar({...datosEditar, edad: e.target.value})} />
 
                             <label>Descripción:</label>
-                            <textarea 
-                                rows="3"
-                                value={datosEditar.descripcion} 
-                                onChange={(e) => setDatosEditar({...datosEditar, descripcion: e.target.value})}
-                            />
+                            <textarea rows="3" value={datosEditar.descripcion} onChange={(e) => setDatosEditar({...datosEditar, descripcion: e.target.value})} />
 
                             <div className="modal-actions">
                                 <button type="submit" className="btn-save">💾 Guardar Cambios</button>
                                 <button type="button" className="btn-cancel" onClick={() => setModalEditarAbierto(false)}>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Agregar */}
+            {modalAgregarAbierto && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Registrar Nueva Mascota 🐾</h2>
+                        <form onSubmit={handleGuardarNuevaMascota}>
+                            <label>Nombre *:</label>
+                            <input type="text" required placeholder="Ej. Max..." value={datosNuevaMascota.nombre} onChange={(e) => setDatosNuevaMascota({...datosNuevaMascota, nombre: e.target.value})} />
+
+                            <label>Especie *:</label>
+                            <select value={datosNuevaMascota.especie} onChange={(e) => setDatosNuevaMascota({...datosNuevaMascota, especie: e.target.value})}>
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
+                            </select>
+
+                            <label>Edad *:</label>
+                            <input type="text" required placeholder="Ej. 2 años..." value={datosNuevaMascota.edad} onChange={(e) => setDatosNuevaMascota({...datosNuevaMascota, edad: e.target.value})} />
+
+                            <label>URL de la Foto (Opcional):</label>
+                            <input type="url" placeholder="https://ejemplo.com/foto.jpg" value={datosNuevaMascota.foto_url} onChange={(e) => setDatosNuevaMascota({...datosNuevaMascota, foto_url: e.target.value})} />
+
+                            <label>Descripción:</label>
+                            <textarea rows="3" placeholder="Descripción de la personalidad..." value={datosNuevaMascota.descripcion} onChange={(e) => setDatosNuevaMascota({...datosNuevaMascota, descripcion: e.target.value})} />
+
+                            <div className="modal-actions">
+                                <button type="submit" className="btn-save">🚀 Registrar Mascota</button>
+                                <button type="button" className="btn-cancel" onClick={() => setModalAgregarAbierto(false)}>Cancelar</button>
                             </div>
                         </form>
                     </div>

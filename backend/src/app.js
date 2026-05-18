@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const authRoutes = require('./routers/authRoutes');     // 🌟 CORREGIDO: Quitamos el '/src' sobrante
-const mascotaRoutes = require('./routers/mascotaRoutes'); // 🌟 CORREGIDO: Quitamos el '/src' sobrante
+// REVISA QUE ESTÉ ASÍ (con "routers"):
+const authRoutes = require('./routers/authRoutes');
+const mascotaRoutes = require('./routers/mascotaRoutes');
 require('dotenv').config();
-
 const app = express();
 
 // Middlewares globales
