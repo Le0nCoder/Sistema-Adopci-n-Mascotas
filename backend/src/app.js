@@ -1,28 +1,27 @@
 const express = require('express');
 const cors = require('cors');
-// REVISA QUE ESTÉ ASÍ (con "routers"):
-const authRoutes = require('./routers/authRoutes');
-const mascotaRoutes = require('./routers/mascotaRoutes');
-require('dotenv').config();
 const app = express();
 
 // Middlewares globales
 app.use(cors());
-app.use(express.json()); // <-- Procesa JSON perfectamente
+app.use(express.json());
 
-// Ruta de prueba de salud
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'Servidor funcionando correctamente' });
-});
+// 1. Importación ordenada de rutas
+const authRoutes = require('./routers/authRoutes');
+const mascotaRoutes = require('./routers/mascotaRoutes');
+const adopcionRoutes = require('./routers/adopcionRoutes'); 
 
-// Enlazar las rutas de autenticación de Amigos Salvajes
+// 2. Montaje de los endpoints en Express
 app.use('/api/auth', authRoutes);
+app.use('/api/mascotas', mascotaRoutes);
+app.use('/api/adopciones', adopcionRoutes);
 
-// Enlazar las rutas del catálogo de Mascotas (adopcion_mascotas)
-app.use('/api/mascotas', mascotaRoutes); 
-
-// Configuración y encendido del puerto
-const PORT = process.env.PORT || 5000;
+// ==========================================
+// ⚠️ ¡ESTA ES LA PIEZA QUE FALTA PARA EL PUERTO 5000!
+// ==========================================
+const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`Servidor backend corriendo en el puerto ${PORT}`);
+    console.log(`🚀 Servidor backend corriendo con éxito en http://localhost:${PORT}`);
 });
+
+module.exports = app;

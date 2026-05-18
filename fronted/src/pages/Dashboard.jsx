@@ -10,12 +10,12 @@ const Dashboard = () => {
     const [cargando, setCargando] = useState(true);
     const [rolUsuario, setRolUsuario] = useState('');
 
-    // 🪟 Estados para la Ventana Modal de Edición
+    // 🪟 Estados para la Ventana Modal de Edición (Admin)
     const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
     const [mascotaAEditar, setMascotaAEditar] = useState(null);
     const [datosEditar, setDatosEditar] = useState({ nombre: '', especie: '', edad: '', descripcion: '' });
 
-    // ➕ Estados para la Ventana Modal de Registro
+    // ➕ Estados para la Ventana Modal de Registro (Admin)
     const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
     const [datosNuevaMascota, setDatosNuevaMascota] = useState({
         nombre: '',
@@ -24,6 +24,12 @@ const Dashboard = () => {
         descripcion: '',
         foto_url: ''
     });
+
+    // 💌 Estados para la Ventana Modal de Adopción (Adoptante)
+    const [modalAdoptarAbierto, setModalAdoptarAbierto] = useState(false);
+    const [mascotaAAdoptar, setMascotaAAdoptar] = useState(null);
+    const [motivosAdopcion, setMotivosAdopcion] = useState('');
+    const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -45,8 +51,6 @@ const Dashboard = () => {
                 const respuesta = await API.get('/mascotas', { 
                     headers: { Authorization: `Bearer ${token}` } 
                 });
-
-                console.log("Respuesta del servidor:", respuesta.data);
 
                 if (respuesta.data.success) {
                     setMascotas(respuesta.data.mascotas); 
@@ -147,6 +151,43 @@ const Dashboard = () => {
         }
     };
 
+    // 🐾 Abrir modal de solicitud de adopción
+    const handleAbrirAdoptar = (mascota) => {
+        setMascotaAAdoptar(mascota);
+        setMotivosAdopcion('');
+        setModalAdoptarAbierto(true);
+    };
+
+    // 📬 Enviar el formulario de adopción al Backend
+    const handleEnviarSolicitudAdopcion = async (e) => {
+        e.preventDefault();
+        try {
+            setEnviandoSolicitud(true);
+            const token = localStorage.getItem('token');
+            
+            const respuesta = await API.post('/adopciones/solicitar', {
+                mascota_id: mascotaAAdoptar.id, 
+                motivos: motivosAdopcion
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (respuesta.data.success) {
+                alert(respuesta.data.msg);
+                
+                setMascotas(prev => 
+                    prev.map(m => m.id === mascotaAAdoptar.id ? { ...m, estado: 'En Proceso' } : m)
+                );
+                setModalAdoptarAbierto(false);
+            }
+        } catch (error) {
+            console.error("Error al enviar solicitud de adopción:", error.response || error);
+            alert(error.response?.data?.msg || "Hubo un error al procesar tu solicitud de adopción. Inténtalo de nuevo.");
+        } finally {
+            setEnviandoSolicitud(false);
+        }
+    };
+
     const mascotasFiltradas = mascotas.filter(mascota => {
         const nombre = mascota.nombre ? mascota.nombre.toLowerCase() : '';
         const especie = mascota.especie ? mascota.especie.toLowerCase() : '';
@@ -219,7 +260,13 @@ const Dashboard = () => {
                                             <button className="btn-card-delete" onClick={() => handleEliminarMascota(mascota.id, mascota.nombre)}>❌ Eliminar</button>
                                         </div>
                                     ) : (
-                                        <button className="btn-adoptar">Conóceme 🐾</button>
+                                        <button 
+                                            className="btn-adoptar" 
+                                            disabled={mascota.estado?.toLowerCase() === 'en proceso'}
+                                            onClick={() => handleAbrirAdoptar(mascota)}
+                                        >
+                                            {mascota.estado?.toLowerCase() === 'en proceso' ? '⏳ En Proceso' : 'Conóceme 🐾'}
+                                        </button>
                                     )}
                                 </div>
                             ))
@@ -287,6 +334,47 @@ const Dashboard = () => {
                             <div className="modal-actions">
                                 <button type="submit" className="btn-save">🚀 Registrar Mascota</button>
                                 <button type="button" className="btn-cancel" onClick={() => setModalAgregarAbierto(false)}>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Adopción */}
+            {modalAdoptarAbierto && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>¿Quieres conocer a {mascotaAAdoptar?.nombre}? 🥺❤️</h2>
+                        <p style={{margin: '10px 0', color: '#555'}}>
+                            Estás a un paso de iniciar el proceso de adopción para este encantador {mascotaAAdoptar?.especie}. 
+                            Cuéntale al refugio por qué eres el candidato ideal:
+                        </p>
+                        
+                        <form onSubmit={handleEnviarSolicitudAdopcion}>
+                            <label>Cuéntanos sobre ti y tu espacio (Opcional):</label>
+                            <textarea 
+                                rows="4" 
+                                placeholder="Ej: Tengo patio amplio, tiempo para pasear y experiencia previa con perritos..." 
+                                value={motivosAdopcion} 
+                                onChange={(e) => setMotivosAdopcion(e.target.value)}
+                            />
+
+                            <div className="modal-actions">
+                                <button 
+                                    type="submit" 
+                                    className="btn-save" 
+                                    disabled={enviandoSolicitud}
+                                    style={{backgroundColor: '#4CAF50'}}
+                                >
+                                    {enviandoSolicitud ? '💌 Enviando...' : '💖 Enviar Solicitud de Adopción'}
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn-cancel" 
+                                    onClick={() => setModalAdoptarAbierto(false)}
+                                >
+                                    Volver atrás
+                                </button>
                             </div>
                         </form>
                     </div>
