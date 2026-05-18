@@ -10,16 +10,6 @@ const Dashboard = () => {
     const [cargando, setCargando] = useState(true);
     const [rolUsuario, setRolUsuario] = useState(''); // Estado para identificar el rol del usuario
 
-    // Lista simulada de mascotas en lo que conectamos el endpoint final del backend
-    const mascotasMock = [
-        { id: 1, nombre: 'Thor', especie: 'Perro', raza: 'Golden Retriever', edad: '2 años', foto: '🐾' },
-        { id: 2, nombre: 'Luna', especie: 'Gato', raza: 'Siamés', edad: '6 meses', foto: '🐾' },
-        { id: 3, nombre: 'Simba', especie: 'Perro', raza: 'Chihuahua', edad: '1 año', foto: '🐾' },
-        { id: 4, nombre: 'Mimi', especie: 'Gato', raza: 'Persa', edad: '3 años', foto: '🐾' }
-    ];
-
-    // 📁 Ubicación: fronted/src/pages/Dashboard.jsx
-
     useEffect(() => {
         // 1. Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
@@ -46,7 +36,7 @@ const Dashboard = () => {
                 });
 
                 if (respuesta.data.success) {
-                    // Seteamos las mascotas reales que vienen de la base de datos
+                    // Seteamos las mascotas reales que vienen de la base de datos (tabla: mascotas)
                     setMascotas(respuesta.data.mascotas); 
                 }
             } catch (error) {
@@ -66,12 +56,15 @@ const Dashboard = () => {
         navigate('/login');
     };
 
-    // Filtrar mascotas según lo que escriba el usuario
-    const mascotasFiltradas = mascotas.filter(mascota =>
-        mascota.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        mascota.especie.toLowerCase().includes(busqueda.toLowerCase()) ||
-        mascota.raza.toLowerCase().includes(busqueda.toLowerCase())
-    );
+    // Filtrar mascotas según lo que escriba el usuario (Adaptado a 'descripcion' de tu BD)
+    const mascotasFiltradas = mascotas.filter(mascota => {
+        const nombre = mascota.nombre ? mascota.nombre.toLowerCase() : '';
+        const especie = mascota.especie ? mascota.especie.toLowerCase() : '';
+        const descripcion = mascota.descripcion ? mascota.descripcion.toLowerCase() : '';
+        const termino = busqueda.toLowerCase();
+
+        return nombre.includes(termino) || especie.includes(termino) || descripcion.includes(termino);
+    });
 
     return (
         <div className="dashboard-container">
@@ -107,7 +100,7 @@ const Dashboard = () => {
                 <div className="search-box">
                     <input 
                         type="text" 
-                        placeholder="🔍 Buscar por nombre, especie (perro, gato) o raza..." 
+                        placeholder="🔍 Buscar por nombre, especie (perro, gato) o descripción..." 
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                     />
@@ -121,15 +114,25 @@ const Dashboard = () => {
                         {mascotasFiltradas.length > 0 ? (
                             mascotasFiltradas.map(mascota => (
                                 <div key={mascota.id} className="mascota-card">
-                                    <div className="card-avatar">{mascota.foto}</div>
+                                    {/* 📸 Usamos 'foto_url' de tu BD o un emoji por defecto si está vacío */}
+                                    <div className="card-avatar">
+                                        {mascota.foto_url ? (
+                                            <img src={mascota.foto_url} alt={mascota.nombre} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                                        ) : (
+                                            '🐾'
+                                        )}
+                                    </div>
+                                    
                                     <div className="card-info">
                                         <h3>{mascota.nombre}</h3>
                                         <p><strong>Especie:</strong> {mascota.especie}</p>
-                                        <p><strong>Raza:</strong> {mascota.raza}</p>
+                                        {/* 📝 Mapeado a 'descripcion' para coincidir con tu BD */}
+                                        <p><strong>Descripción:</strong> {mascota.descripcion || 'Sin descripción'}</p>
                                         <p><strong>Edad:</strong> {mascota.edad}</p>
+                                        <p><strong>Estado:</strong> <span className="estado-badge">{mascota.estado || 'Disponible'}</span></p>
                                     </div>
                                     
-                                    {/* BOTONES MUTABLES SEGÚN EL ROL DETECTADO */}
+                                    {/* Botones según el Rol */}
                                     {rolUsuario === 'admin' ? (
                                         <div className="admin-card-buttons">
                                             <button className="btn-card-edit" onClick={() => alert(`Editando a ${mascota.nombre}`)}>✏️ Editar</button>
@@ -142,8 +145,7 @@ const Dashboard = () => {
                             ))
                         ) : (
                             <p className="no-results">No se encontraron mascotas que coincidan con tu búsqueda. 😿</p>
-                        )
-                    }
+                        )}
                     </div>
                 )}
             </main>
