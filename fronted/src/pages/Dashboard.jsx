@@ -10,6 +10,11 @@ const Dashboard = () => {
     const [cargando, setCargando] = useState(true);
     const [rolUsuario, setRolUsuario] = useState(''); // Estado para identificar el rol del usuario
 
+    // 🪟 Estados para la Ventana Modal de Edición
+    const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+    const [mascotaAEditar, setMascotaAEditar] = useState(null);
+    const [datosEditar, setDatosEditar] = useState({ nombre: '', especie: '', edad: '', descripcion: '' });
+
     useEffect(() => {
         // 1. Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
@@ -83,6 +88,42 @@ const Dashboard = () => {
         } catch (error) {
             console.error("Error al eliminar la mascota:", error.response || error);
             alert("No se pudo eliminar la mascota. Verifica el estado del backend o los permisos.");
+        }
+    };
+
+    // ✏️ Cargar datos actuales de la mascota elegida y abrir el modal
+    const handleAbrirEditar = (mascota) => {
+        setMascotaAEditar(mascota);
+        setDatosEditar({
+            nombre: mascota.nombre,
+            especie: mascota.especie,
+            edad: mascota.edad,
+            descripcion: mascota.descripcion || ''
+        });
+        setModalEditarAbierto(true);
+    };
+
+    // 💾 Enviar los datos modificados al endpoint PUT del Backend
+    const handleGuardarEdicion = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            const respuesta = await API.put(`/mascotas/${mascotaAEditar.id}`, datosEditar, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (respuesta.data.success) {
+                alert("Mascota actualizada con éxito.");
+                
+                // Mapeamos el estado local para reflejar los cambios en pantalla inmediatamente
+                setMascotas(prevMascotas => 
+                    prevMascotas.map(m => m.id === mascotaAEditar.id ? { ...m, ...datosEditar } : m)
+                );
+                setModalEditarAbierto(false);
+            }
+        } catch (error) {
+            console.error("Error al actualizar la mascota:", error.response || error);
+            alert("No se pudo actualizar la mascota. Intenta de nuevo.");
         }
     };
 
@@ -165,7 +206,13 @@ const Dashboard = () => {
                                     {/* Botones según el Rol */}
                                     {rolUsuario === 'admin' ? (
                                         <div className="admin-card-buttons">
-                                            <button className="btn-card-edit" onClick={() => alert(`Editando a ${mascota.nombre}`)}>✏️ Editar</button>
+                                            {/* Acción real asignada al botón Editar */}
+                                            <button 
+                                                className="btn-card-edit" 
+                                                onClick={() => handleAbrirEditar(mascota)}
+                                            >
+                                                ✏️ Editar
+                                            </button>
                                             
                                             {/* Acción real asignada al botón Eliminar */}
                                             <button 
@@ -186,6 +233,53 @@ const Dashboard = () => {
                     </div>
                 )}
             </main>
+
+            {/* 🪟 VENTANA MODAL FLOTANTE PARA EDITAR MASCOTA */}
+            {modalEditarAbierto && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Editar Datos de {mascotaAEditar?.nombre}</h2>
+                        <form onSubmit={handleGuardarEdicion}>
+                            <label>Nombre:</label>
+                            <input 
+                                type="text" 
+                                required 
+                                value={datosEditar.nombre} 
+                                onChange={(e) => setDatosEditar({...datosEditar, nombre: e.target.value})} 
+                            />
+
+                            <label>Especie:</label>
+                            <select 
+                                value={datosEditar.especie} 
+                                onChange={(e) => setDatosEditar({...datosEditar, especie: e.target.value})}
+                            >
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
+                            </select>
+
+                            <label>Edad:</label>
+                            <input 
+                                type="text" 
+                                required 
+                                value={datosEditar.edad} 
+                                onChange={(e) => setDatosEditar({...datosEditar, edad: e.target.value})} 
+                            />
+
+                            <label>Descripción:</label>
+                            <textarea 
+                                rows="3"
+                                value={datosEditar.descripcion} 
+                                onChange={(e) => setDatosEditar({...datosEditar, descripcion: e.target.value})}
+                            />
+
+                            <div className="modal-actions">
+                                <button type="submit" className="btn-save">💾 Guardar Cambios</button>
+                                <button type="button" className="btn-cancel" onClick={() => setModalEditarAbierto(false)}>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
