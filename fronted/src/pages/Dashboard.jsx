@@ -18,10 +18,12 @@ const Dashboard = () => {
         { id: 4, nombre: 'Mimi', especie: 'Gato', raza: 'Persa', edad: '3 años', foto: '🐾' }
     ];
 
+    // 📁 Ubicación: fronted/src/pages/Dashboard.jsx
+
     useEffect(() => {
-        // Verificar si el usuario realmente está logueado
+        // 1. Verificar si el usuario realmente está logueado
         const token = localStorage.getItem('token');
-        const rol = localStorage.getItem('rol'); // Leer el rol guardado en el Login
+        const rol = localStorage.getItem('rol');
 
         if (!token) {
             alert('Acceso denegado. Por favor, inicia sesión.');
@@ -29,18 +31,33 @@ const Dashboard = () => {
             return;
         }
 
-        // Convertimos a minúsculas para asegurar que la condición 'admin' siempre haga match perfecto
         if (rol) {
             setRolUsuario(rol.toLowerCase().trim());
-        } else {
-            setRolUsuario('usuario');
         }
-        
-        // Aquí haríamos la petición real al backend usando el middleware de protección:
-        // API.get('/mascotas', { headers: { Authorization: `Bearer ${token}` } })
-        
-        setMascotas(mascotasMock);
-        setCargando(false);
+
+        // 2. Petición REAL al Backend para traer las mascotas de la Base de Datos
+        const cargarMascotas = async () => {
+            try {
+                setCargando(true);
+                
+                // Enviamos el token en los headers como lo pide tu middleware
+                const respuesta = await API.get('/mascotas', { 
+                    headers: { Authorization: `Bearer ${token}` } 
+                });
+
+                if (respuesta.data.success) {
+                    // Seteamos las mascotas reales que vienen de la base de datos
+                    setMascotas(respuesta.data.mascotas); 
+                }
+            } catch (error) {
+                console.error("Error al traer las mascotas:", error);
+                alert("No se pudo cargar el catálogo de mascotas. Intenta de nuevo.");
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        cargarMascotas();
     }, [navigate]);
 
     const handleLogout = () => {
