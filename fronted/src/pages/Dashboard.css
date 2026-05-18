@@ -194,7 +194,7 @@
 }
 
 /* =========================================================================
-   ESTILOS DE ADMINISTRADOR (Inyectar al final del archivo)
+   ESTILOS DE ADMINISTRADOR
    ========================================================================= */
 
 /* Barra superior de acciones */
@@ -279,17 +279,156 @@
     border-radius: 12px;
 }
 
-/* Ajustes Responsivos Refinados */
+/* =========================================================================
+   🪟 VENTANA MODAL (Diseño Adaptado y Refinado)
+   ========================================================================= */
+
+/* Capa translúcida de fondo */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(46, 65, 74, 0.6); /* Basado en tu color oscuro de textos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(2px); /* Desenfoque sutil pro */
+}
+
+/* Tarjeta del formulario */
+.modal-content {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 16px; /* Mismos bordes suaves que tus tarjetas */
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content h2 {
+    color: #2e414a; /* Mismo tono elegante del banner */
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #5c7079;
+    margin-top: 12px;
+    margin-bottom: 5px;
+}
+
+/* Inputs, Selects y Textareas Homologados */
+.modal-content input, 
+.modal-content select, 
+.modal-content textarea {
+    padding: 10px 14px;
+    border: 2px solid #ced4da;
+    border-radius: 10px; /* Bordes suaves */
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #212529;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.modal-content input:focus, 
+.modal-content select:focus, 
+.modal-content textarea:focus {
+    border-color: #547786; /* Foco con tu azul de marca */
+}
+
+.modal-content textarea {
+    resize: none; /* Desactivamos el estiramiento manual */
+}
+
+/* Botones dentro del Modal */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-save, .btn-cancel {
+    flex: 1;
+    border: none;
+    padding: 11px 0;
+    border-radius: 20px; /* Consistencia estética con los demás botones */
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s, transform 0.1s;
+    text-align: center;
+}
+
+.btn-save {
+    background-color: #547786; /* Tu azul principal */
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #3b535e;
+}
+
+.btn-cancel {
+    background-color: #e6ebed;
+    color: #5c7079;
+}
+
+.btn-cancel:hover {
+    background-color: #dbe2e6;
+    color: #2e414a;
+}
+
+.btn-save:active, .btn-cancel:active {
+    transform: scale(0.98);
+}
+
+/* Animación sutil de entrada */
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================================
+   Ajustes Responsivos Refinados
+   ========================================================================= */
+
 @media (max-width: 768px) {
     .dashboard-nav { padding: 10px 20px; }
     .nav-logo { font-size: 1.1rem; }
     .btn-logout { font-size: 0.8rem; padding: 5px 12px; }
     .welcome-banner h1 { font-size: 1.5rem; }
     .mascotas-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+    .modal-content { max-width: 90%; padding: 20px; }
 }
 
 @media (max-width: 480px) {
     .dashboard-content { padding: 20px 15px; }
     .welcome-banner h1 { font-size: 1.3rem; }
     .welcome-banner p { font-size: 0.85rem; }
+    .modal-actions { flex-direction: column; gap: 8px; }
 }
